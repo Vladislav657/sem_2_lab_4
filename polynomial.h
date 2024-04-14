@@ -5,68 +5,71 @@
 
 using namespace std;
 
-template <typename T>
 class Polynomial{
 private:
-    T *coefficients;
+    double *coefficients;
     int size;
 
 public:
     Polynomial();
 
-    Polynomial(T *coefficients, int size);
+    Polynomial(const double *coefficients, int size);
+
+    Polynomial(const float *coefficients, int size);
+
+    Polynomial(const int *coefficients, int size);
 
     Polynomial(Polynomial& other);
 
     Polynomial(Polynomial&& other) noexcept ;
 
-    T calculate(T x);
+    double calculate(double x);
 
-    T operator [] (int index) noexcept;
+    double operator [] (int index) noexcept;
 
-    T at(int index);
+    double at(int index);
 
     Polynomial operator + (Polynomial& other);
 
-    Polynomial operator + (T other);
+    Polynomial operator + (double other);
 
     Polynomial operator - (Polynomial& other);
 
-    Polynomial operator - (T other);
+    Polynomial operator - (double other);
 
     Polynomial operator * (Polynomial& other);
 
-    Polynomial operator * (T other);
+    Polynomial operator * (double other);
 
-    Polynomial operator / (T other);
+    Polynomial operator / (double other);
 
     Polynomial operator += (Polynomial& other);
 
-    Polynomial operator += (T other);
+    Polynomial operator += (double other);
 
     Polynomial operator -= (Polynomial& other);
 
-    Polynomial operator -= (T other);
+    Polynomial operator -= (double other);
 
     Polynomial operator *= (Polynomial& other);
 
-    Polynomial operator *= (T other);
+    Polynomial operator *= (double other);
 
-    Polynomial operator /= (T other);
+    Polynomial operator /= (double other);
 
     Polynomial operator - ();
 
-    Polynomial operator == (Polynomial& other);
+    bool operator == (Polynomial& other);
 
-    Polynomial operator >= (Polynomial& other);
+    bool operator >= (Polynomial& other);
 
-    Polynomial operator <= (Polynomial& other);
+    bool operator <= (Polynomial& other);
 
-    Polynomial operator > (Polynomial& other);
+    bool operator > (Polynomial& other);
 
-    Polynomial operator < (Polynomial& other);
+    bool operator < (Polynomial& other);
 
-    Polynomial<T>& operator = (Polynomial<T> &&other) noexcept ;
+    Polynomial& operator = (Polynomial&& other) noexcept ;
 
     friend ostream& operator << (ostream& out, Polynomial& polynomial);
 

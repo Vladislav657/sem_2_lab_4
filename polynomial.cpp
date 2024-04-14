@@ -1,14 +1,12 @@
 #include "polynomial.h"
 
-template <typename T>
-T pow(T a, int b){ // b >= 0
-    T result = 1;
+double pow(double a, int b){ // b >= 0
+    double result = 1;
     for (int i = 0; i < b; ++i) result *= a;
     return result;
 }
 
-template <typename T>
-int reduce(T* array, int size){
+int reduce(const double* array, int size){
     for (int i = size - 1; i >= 0; --i) {
         if (array[i] == 0 && i != 0) size--;
         else break;
@@ -16,143 +14,140 @@ int reduce(T* array, int size){
     return size;
 }
 
-template <typename T>
-Polynomial<T>::Polynomial():size(1){
-    this->coefficients = new T[1]{0};
+Polynomial::Polynomial():size(1){
+    this->coefficients = new double[1]{0};
     this->size = 1;
 }
 
-template <typename T>
-Polynomial<T>::Polynomial(T *coefficients, int size): size(size) {
-    this->size = reduce(coefficients, size);
-    this->coefficients = new T[this->size];
-    for (int i = 0; i < this->size; ++i) this->coefficients[i] = coefficients[i];
+Polynomial::Polynomial(const double *coefficients, int size): size(size) {
+    this->coefficients = new double[size];
+    for (int i = 0; i < size; ++i) this->coefficients[i] = coefficients[i];
+    this->size = reduce(this->coefficients, size);
 }
 
-template <typename T>
-Polynomial<T>::Polynomial(Polynomial<T> &other): size(other.size) {
-    this->coefficients = new T[other.size];
+Polynomial::Polynomial(const float *coefficients, int size): size(size) {
+    this->coefficients = new double[size];
+    for (int i = 0; i < size; ++i) this->coefficients[i] = (double) coefficients[i];
+    this->size = reduce(this->coefficients, size);
+}
+
+Polynomial::Polynomial(const int *coefficients, int size): size(size) {
+    this->coefficients = new double[size];
+    for (int i = 0; i < size; ++i) this->coefficients[i] = (double) coefficients[i];
+    this->size = reduce(this->coefficients, size);
+}
+
+Polynomial::Polynomial(Polynomial &other): size(other.size) {
+    this->coefficients = new double[other.size];
     for (int i = 0; i < size; ++i) this->coefficients[i] = other.coefficients[i];
     this->size = other.size;
 }
 
-template <typename T>
-Polynomial<T>::Polynomial(Polynomial<T> &&other) noexcept : size(other.size) {
+Polynomial::Polynomial(Polynomial &&other) noexcept : size(other.size) {
     this->coefficients = other.coefficients;
     this->size = other.size;
 }
 
-template <typename T>
-T Polynomial<T>::calculate(T x) {
-    T result = 0;
+double Polynomial::calculate(double x) {
+    double result = 0;
     for (int i = 0; i < this->size; ++i) result += this->coefficients[i] * pow(x, i);
     return result;
 }
 
-template <typename T>
-T Polynomial<T>::operator[](int index) noexcept {
+double Polynomial::operator[](int index) noexcept {
     if (index >= this->size || index < 0) return 0;
     return this->coefficients[index];
 }
 
-template <typename T>
-T Polynomial<T>::at(int index) {
+double Polynomial::at(int index) {
     if (index >= this->size || index < 0) throw range_error("Incorrect index");
     return this->coefficients[index];
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator+(Polynomial<T> &other) {
+Polynomial Polynomial::operator+(Polynomial &other) {
     int newSize;
-    T *newCoefficients;
+    double *newCoefficients;
     if (this->size > other.size){
-        newCoefficients = new T[this->size];
+        newCoefficients = new double[this->size];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] += other.coefficients[i];
         newSize = this->size;
     } else {
-        newCoefficients = new T[other.size];
+        newCoefficients = new double[other.size];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] = other.coefficients[i];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] += this->coefficients[i];
         newSize = other.size;
     }
     newSize = reduce(newCoefficients, newSize);
-    return Polynomial<T>(newCoefficients, newSize);
+    return {newCoefficients, newSize};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator+(T other) {
-    T *newCoefficients = new T[this->size];
+Polynomial Polynomial::operator+(double other) {
+    auto *newCoefficients = new double[this->size];
     for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i];
     newCoefficients[0] += other;
-    return Polynomial<T>{newCoefficients, this->size};
+    return Polynomial{newCoefficients, this->size};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator-(Polynomial<T> &other) {
+Polynomial Polynomial::operator-(Polynomial &other) {
     int newSize;
-    T *newCoefficients;
+    double *newCoefficients;
     if (this->size > other.size){
-        newCoefficients = new T[this->size];
+        newCoefficients = new double[this->size];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] -= other.coefficients[i];
         newSize = this->size;
     } else {
-        newCoefficients = new T[other.size];
+        newCoefficients = new double[other.size];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] = -other.coefficients[i];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] += this->coefficients[i];
         newSize = other.size;
     }
     newSize = reduce(newCoefficients, newSize);
-    return Polynomial<T>(newCoefficients, newSize);
+    return {newCoefficients, newSize};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator-(T other) {
-    T *newCoefficients = new T[this->size];
+Polynomial Polynomial::operator-(double other) {
+    auto *newCoefficients = new double[this->size];
     for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i];
     newCoefficients[0] -= other;
-    return Polynomial<T>{newCoefficients, this->size};
+    return Polynomial{newCoefficients, this->size};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator*(Polynomial<T> &other) {
+Polynomial Polynomial::operator*(Polynomial &other) {
     int newSize = this->size + other.size;
-    T *newCoefficients = new T[newSize]{0};
+    auto *newCoefficients = new double[newSize]{0};
     for (int i = 0; i < this->size; ++i)
         for (int j = 0; j < other.size; ++j)
             newCoefficients[i + j] += this->coefficients[i] * other.coefficients[j];
     newSize = reduce(newCoefficients, newSize);
-    return Polynomial<T>(newCoefficients, newSize);
+    return {newCoefficients, newSize};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator*(T other) {
-    T *newCoefficients = new T[this->size];
+Polynomial Polynomial::operator*(double other) {
+    auto *newCoefficients = new double[this->size];
     for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i] * other;
     int newSize = reduce(newCoefficients, this->size);
-    return Polynomial<T>{newCoefficients, newSize};
+    return Polynomial{newCoefficients, newSize};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator/(T other) {
-    if (other == 0) return Polynomial<T>();
-    T *newCoefficients = new T[this->size];
+Polynomial Polynomial::operator/(double other) {
+    if (other == 0) return {};
+    auto *newCoefficients = new double[this->size];
     for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i] / other;
-    return Polynomial<T>{newCoefficients, this->size};
+    return Polynomial{newCoefficients, this->size};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator+=(Polynomial<T> &other) {
+Polynomial Polynomial::operator+=(Polynomial &other) {
     int newSize;
-    T *newCoefficients;
+    double *newCoefficients;
     if (this->size > other.size){
-        newCoefficients = new T[this->size];
+        newCoefficients = new double[this->size];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] += other.coefficients[i];
         newSize = this->size;
     } else {
-        newCoefficients = new T[other.size];
+        newCoefficients = new double[other.size];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] = other.coefficients[i];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] += this->coefficients[i];
         newSize = other.size;
@@ -163,23 +158,21 @@ Polynomial<T> Polynomial<T>::operator+=(Polynomial<T> &other) {
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator+=(T other) {
+Polynomial Polynomial::operator+=(double other) {
     this->coefficients[0] += other;
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator-=(Polynomial<T> &other) {
+Polynomial Polynomial::operator-=(Polynomial &other) {
     int newSize;
-    T *newCoefficients;
+    double *newCoefficients;
     if (this->size > other.size){
-        newCoefficients = new T[this->size];
+        newCoefficients = new double[this->size];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] = this->coefficients[i];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] -= other.coefficients[i];
         newSize = this->size;
     } else {
-        newCoefficients = new T[other.size];
+        newCoefficients = new double[other.size];
         for (int i = 0; i < other.size; ++i) newCoefficients[i] = -other.coefficients[i];
         for (int i = 0; i < this->size; ++i) newCoefficients[i] += this->coefficients[i];
         newSize = other.size;
@@ -190,16 +183,14 @@ Polynomial<T> Polynomial<T>::operator-=(Polynomial<T> &other) {
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator-=(T other) {
+Polynomial Polynomial::operator-=(double other) {
     this->coefficients[0] -= other;
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator*=(Polynomial<T> &other) {
+Polynomial Polynomial::operator*=(Polynomial &other) {
     int newSize = this->size + other.size;
-    T *newCoefficients = new T[newSize]{0};
+    auto *newCoefficients = new double[newSize]{0};
     for (int i = 0; i < this->size; ++i)
         for (int j = 0; j < other.size; ++j)
             newCoefficients[i + j] += this->coefficients[i] * other.coefficients[j];
@@ -209,37 +200,32 @@ Polynomial<T> Polynomial<T>::operator*=(Polynomial<T> &other) {
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator*=(T other) {
+Polynomial Polynomial::operator*=(double other) {
     for (int i = 0; i < this->size; ++i) this->coefficients[i] *= other;
     this->size = reduce(this->coefficients, this->size);
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator/=(T other) {
+Polynomial Polynomial::operator/=(double other) {
     if (other == 0) return *this;
     for (int i = 0; i < this->size; ++i) this->coefficients[i] /= other;
     return *this;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator-() {
-    T *newCoefficients = new T[this->size];
+Polynomial Polynomial::operator-() {
+    auto *newCoefficients = new double[this->size];
     for (int i = 0; i < this->size; ++i) newCoefficients[i] = -this->coefficients[i];
-    return Polynomial<T>(newCoefficients, this->size);
+    return {newCoefficients, this->size};
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator==(Polynomial<T> &other) {
+bool Polynomial::operator==(Polynomial &other) {
     if (this->size != other.size) return false;
     for (int i = 0; i < this->size; ++i)
         if (this->coefficients[i] != other.coefficients[i]) return false;
     return true;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator>=(Polynomial<T> &other) {
+bool Polynomial::operator>=(Polynomial &other) {
     if (this->size > other.size){
         if (this->coefficients[this->size - 1] < 0) return false;
         else return true;
@@ -254,8 +240,7 @@ Polynomial<T> Polynomial<T>::operator>=(Polynomial<T> &other) {
     return true;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator<=(Polynomial<T> &other) {
+bool Polynomial::operator<=(Polynomial &other) {
     if (this->size > other.size){
         if (this->coefficients[this->size - 1] < 0) return true;
         else return false;
@@ -270,8 +255,7 @@ Polynomial<T> Polynomial<T>::operator<=(Polynomial<T> &other) {
     return true;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator>(Polynomial<T> &other) {
+bool Polynomial::operator>(Polynomial &other) {
     if (this->size > other.size){
         if (this->coefficients[this->size - 1] < 0) return false;
         else return true;
@@ -286,8 +270,7 @@ Polynomial<T> Polynomial<T>::operator>(Polynomial<T> &other) {
     return false;
 }
 
-template <typename T>
-Polynomial<T> Polynomial<T>::operator<(Polynomial<T> &other) {
+bool Polynomial::operator<(Polynomial &other) {
     if (this->size > other.size){
         if (this->coefficients[this->size - 1] < 0) return true;
         else return false;
@@ -302,42 +285,41 @@ Polynomial<T> Polynomial<T>::operator<(Polynomial<T> &other) {
     return false;
 }
 
-template <typename T>
-Polynomial<T>& Polynomial<T>::operator=(Polynomial<T> &&other) noexcept {
-    this->coefficients = new T[other.size];
+Polynomial& Polynomial::operator=(Polynomial &&other) noexcept {
+    this->coefficients = new double[other.size];
     for (int i = 0; i < size; ++i) this->coefficients[i] = other.coefficients[i];
     this->size = other.size;
     return *this;
 }
 
-template <typename T>
-ostream &operator<<(ostream &out, Polynomial<T> &polynomial) {
+ostream &operator<<(ostream &out, Polynomial &polynomial) {
     for (int i = polynomial.size - 1; i >= 0; --i) {
         if (polynomial.coefficients[i] != 0) {
-            if (i > 0) polynomial.coefficients[i] > 0 ? out << " + " : out << " - ";
-            out << polynomial.coefficients[i];
-            if (i == 1) out << 'X';
+            if (i < polynomial.size - 1) polynomial.coefficients[i] > 0 ? out << " + " : out << " - ";
+            if (polynomial.coefficients[i] != 1 && polynomial.coefficients[i] != -1)
+                polynomial.coefficients[i] > 0 ? out << polynomial.coefficients[i] : out << -polynomial.coefficients[i];
+            if (i == 1) out << "X";
             else if (i > 1) out << "X^" << i;
         }
     }
     return out;
 }
 
-template <typename T>
-Polynomial<T>::operator string() {
+Polynomial::operator string() {
     string polynomial;
     for (int i = this->size - 1; i >= 0; --i) {
         if (this->coefficients[i] != 0) {
-            if (i > 0) polynomial += this->coefficients[i] > 0 ? " + " : " - ";
-            polynomial += to_string((double)this->coefficients[i]);
-            if (i == 1) polynomial += 'X';
+            if (i < this->size - 1) polynomial += this->coefficients[i] > 0 ? " + " : " - ";
+            if (this->coefficients[i] != 1 && this->coefficients[i] != -1)
+                polynomial += this->coefficients[i] > 0 ? to_string(this->coefficients[i]) :
+                        to_string(-this->coefficients[i]);
+            if (i == 1) polynomial += "X";
             else if (i > 1) polynomial += "X^" + to_string(i);
         }
     }
     return polynomial;
 }
 
-template <typename T>
-Polynomial<T>::~Polynomial() {
+Polynomial::~Polynomial() {
     delete[] this->coefficients;
 }
