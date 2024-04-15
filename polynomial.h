@@ -25,6 +25,10 @@ public:
 
     double calculate(double x);
 
+    double calculate(float x);
+
+    double calculate(int x);
+
     double operator [] (int index) noexcept;
 
     double at(int index);

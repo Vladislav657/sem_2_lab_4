@@ -54,6 +54,18 @@ double Polynomial::calculate(double x) {
     return result;
 }
 
+double Polynomial::calculate(float x) {
+    double result = 0;
+    for (int i = 0; i < this->size; ++i) result += this->coefficients[i] * pow((double)x, i);
+    return result;
+}
+
+double Polynomial::calculate(int x) {
+    double result = 0;
+    for (int i = 0; i < this->size; ++i) result += this->coefficients[i] * pow((double)x, i);
+    return result;
+}
+
 double Polynomial::operator[](int index) noexcept {
     if (index >= this->size || index < 0) return 0;
     return this->coefficients[index];
