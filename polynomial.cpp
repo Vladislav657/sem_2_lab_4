@@ -307,9 +307,22 @@ Polynomial& Polynomial::operator=(Polynomial &&other) noexcept {
 ostream &operator<<(ostream &out, Polynomial &polynomial) {
     for (int i = polynomial.size - 1; i >= 0; --i) {
         if (polynomial.coefficients[i] != 0) {
-            if (i < polynomial.size - 1) polynomial.coefficients[i] > 0 ? out << " + " : out << " - ";
-            if (polynomial.coefficients[i] != 1 && polynomial.coefficients[i] != -1)
-                polynomial.coefficients[i] > 0 ? out << polynomial.coefficients[i] : out << -polynomial.coefficients[i];
+            if (i == polynomial.size - 1) {
+                if (polynomial.coefficients[i] != 1 && polynomial.coefficients[i] != -1)
+                    out << polynomial.coefficients[i];
+                else if (polynomial.coefficients[i] == -1)
+                    out << '-';
+            }
+            else if (i == 0)
+                polynomial.coefficients[i] > 0 ?
+                out << " + " <<  polynomial.coefficients[i]: out << " - " << -polynomial.coefficients[i];
+            else {
+                polynomial.coefficients[i] > 0 ? out << " + " : out << " - ";
+                if (polynomial.coefficients[i] < 0 && polynomial.coefficients[i] != -1)
+                    out << -polynomial.coefficients[i];
+                else if (polynomial.coefficients[i] > 0 && polynomial.coefficients[i] != 1)
+                    out << polynomial.coefficients[i];
+            }
             if (i == 1) out << "X";
             else if (i > 1) out << "X^" << i;
         }
@@ -321,10 +334,23 @@ Polynomial::operator string() {
     string polynomial;
     for (int i = this->size - 1; i >= 0; --i) {
         if (this->coefficients[i] != 0) {
-            if (i < this->size - 1) polynomial += this->coefficients[i] > 0 ? " + " : " - ";
-            if (this->coefficients[i] != 1 && this->coefficients[i] != -1)
-                polynomial += this->coefficients[i] > 0 ? to_string(this->coefficients[i]) :
-                        to_string(-this->coefficients[i]);
+            if (i == this->size - 1) {
+                if (this->coefficients[i] != 1 && this->coefficients[i] != -1)
+                    polynomial += to_string(this->coefficients[i]);
+                else if (this->coefficients[i] == -1)
+                    polynomial += '-';
+            }
+            else if (i == 0)
+                this->coefficients[i] > 0 ?
+                polynomial += " + " + to_string(this->coefficients[i]) :
+                            polynomial += " - " + to_string(-this->coefficients[i]);
+            else {
+                this->coefficients[i] > 0 ? polynomial += " + " : polynomial += " - ";
+                if (this->coefficients[i] < 0 && this->coefficients[i] != -1)
+                    polynomial += to_string(-this->coefficients[i]);
+                else if (this->coefficients[i] > 0 && this->coefficients[i] != 1)
+                    polynomial += to_string(this->coefficients[i]);
+            }
             if (i == 1) polynomial += "X";
             else if (i > 1) polynomial += "X^" + to_string(i);
         }
